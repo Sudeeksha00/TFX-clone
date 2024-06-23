@@ -10,13 +10,13 @@ logging.basicConfig(level=logging.INFO)
 
 logging.info("TfRecord convertion script started.....")
 
-
+# Takes string value and ocnverts into a TFRecord of type "byte_list"
 def _bytes_feature(value):
     return tf.train.Feature(
         bytes_list=tf.train.BytesList(value=[value.encode()])
     )
 
-
+# Takes a float value and converts it into a float_list TFrecord
 def _float_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
 
@@ -24,6 +24,7 @@ def _float_feature(value):
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
+# Like this string conversion, float conversion, int conversion, we also have helper functions to convert other features like images, sparse_features
 
 def clean_rows(row):
     if not row["zip_code"]:
@@ -57,13 +58,16 @@ original_data_file = os.path.join(
 tfrecords_filename = os.path.join(
        path, "data", 'dataset2', "consumer-complaints.tfrecords")
 
+# writing to the TFrecord file
 tf_record_writer = tf.io.TFRecordWriter(tfrecords_filename)
 
 logging.info("Conveting..")
 with open(original_data_file) as csv_file:
     reader = csv.DictReader(csv_file, delimiter=",", quotechar='"')
+    # to read CSV file as dictionaries where each key represents a column header and value is represented by its corrsponding data column.
     for row in tqdm(reader):
         row = clean_rows(row)
+        # creating an "Example" Tensorflow object
         example = tf.train.Example(
             features=tf.train.Features(
                 feature={
